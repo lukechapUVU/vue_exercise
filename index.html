@@ -1,0 +1,109 @@
+<div id="app">
+    <h1>{{header}}</h1>
+
+    <h3>What type of workout?</h3>
+    <button @click="setTimedExercise(true)" style="margin-right: 12px">Time-Based</button>
+    <button @click="setTimedExercise(false)">Rep-Based</button>
+    <br>
+    <div v-if="timedExercise">
+        <p>Name of exercise</p>
+        <input v-model="textInput" type="text">
+        <p>Minutes</p>
+        <input v-model="minsInput" type="number" max="120">
+        <p>Seconds</p>
+        <input v-model="secsInput" type="number" max="59">
+        <p>Date</p>
+        <input v-model="workoutDateInput" type="date" max="59">
+        <br>
+        <button @click="submitTimedWorkout(textInput, minsInput, secsInput, workoutDateInput)" style="margin-top:20px">Submit Workout</button>
+    </div>
+    <div v-if="timedExercise == false">
+        <p>Name of exercise</p>
+        <input v-model="textInput" type="text">
+        <p>Sets</p>
+        <input v-model="setsInput" type="number" max="10">
+        <p>Reps</p>
+        <input v-model="repsInput" type="number" max="100">
+        <p>Weight</p>
+        <input v-model="weightInput" type="number" max="400">
+        <p>Date</p>
+        <input v-model="workoutDateInput" type="date" max="59">
+        <br>
+        <button @click="submitRepWorkout(textInput, setsInput, repsInput, weightInput, workoutDateInput)" style="margin-top:20px">Submit Workout</button>
+    </div>
+    <h3>Workout Logs</h3>
+    <ul v-for="workout in workouts" :key="workout.id">
+        <li v-if="workout.mins == null && workout.secs == null">{{workout.text}} - Sets: {{workout.sets}}, Reps: {{workout.reps}}, Weight: {{workout.weight}} on {{reformatDate(workout.workoutDate)}}</li>
+        <li v-if="workout.sets == null && workout.reps == null && workout.weight == null">{{workout.text}} - {{workout.mins}}:{{reformatSeconds(workout.secs)}} on {{reformatDate(workout.workoutDate)}}</li>
+    </ul>
+
+</div>
+
+<script type="module">
+    import { createApp } from 'https://unpkg.com/vue@3/dist/vue.esm-browser.js'
+
+    let id = 0;
+
+    createApp({
+        data() {
+            return {
+                header: 'Exercise Tracking App',
+                timedExercise: null,
+                textInput: '',
+                minsInput: '',
+                secsInput: '',
+                setsInputs: '',
+                repsInputs: '',
+                weightInputs: '',
+                workoutDateInput: '',
+                workouts: [
+                    {id: id++, text: 'Bench press', mins: null, secs: null, sets: 5, reps: 12, weight: 125, workoutDate: '2023-04-10'}
+                ]
+            }
+        },
+        methods: {
+            setTimedExercise(timedOrNot) {
+                this.timedExercise = timedOrNot;
+            },
+            reformatDate(givenDate) {
+                const dateParts = givenDate.split('-');
+                const year = dateParts[0];
+                const month = dateParts[1];
+                const day = dateParts[2];
+                const formattedDate = `${month}-${day}-${year}`;
+                return formattedDate;
+            },
+            submitTimedWorkout(name, mins, secs, date) {
+                if(name && mins && secs && date) {
+                    this.workouts.push(
+                        {id: this.workouts.length, text: name, mins: mins, secs: secs, sets: null, reps: null, weight: null, workoutDate: date}
+                    )
+                }
+                else {
+                    alert('Please fill out all the fields to continue')
+                    throw new Error('Not all fields were filled out')
+                }
+            },
+            submitRepWorkout(name, sets, reps, weight, date) {
+                if(name && sets && reps && weight && date) {
+                    this.workouts.push(
+                        {id: this.workouts.length, text: name, mins: null, secs: null, sets: sets, reps: reps, weight: weight, workoutDate: date}
+                    )
+                }
+                else {
+                    alert('Please fill out all the fields to continue')
+                    throw new Error('Not all fields were filled out')
+                }
+                
+            },
+            reformatSeconds(givenSeconds) {
+                if(givenSeconds < 10) {
+                    return '0'+givenSeconds.toString()
+                }
+                else {
+                    return givenSeconds
+                }
+            }
+        }
+    }).mount("#app")
+</script>
